@@ -1,38 +1,36 @@
 import React from 'react'
-import {useState } from "react";
+import { useState } from "react";
 import Alert from '../Alert_Component/Alert';
 import { Link } from 'react-router-dom';
 import { BASE_URL } from '../../Url';
 
 
 function CredPage(props) {
-    const [alertmsg,setalertmsg]=useState();
-    const [alertshow,setalertshow]=useState(false);
-    const [type,settype]=useState();
-    
-    let reglogchange=async (obj)=>
-    {
-        if(obj!==props.cred.logintype)
-        {
+    const [alertmsg, setalertmsg] = useState();
+    const [alertshow, setalertshow] = useState(false);
+    const [type, settype] = useState();
+
+    let reglogchange = async (obj) => {
+        if (obj !== props.cred.logintype) {
             await props.setcred({
-                type:props.cred.type,
-                userid:"",
-                password:"",
-                logintype:obj,
-                tokenid:""
+                type: props.cred.type,
+                userid: "",
+                password: "",
+                logintype: obj,
+                tokenid: ""
             });
-        } 
+        }
     }
 
-    let passwordchange = async(event) => {
+    let passwordchange = async (event) => {
         await props.setcred(previousState => {
-            return { ...previousState,password:event.target.value}
+            return { ...previousState, password: event.target.value }
         });
     };
 
-    let useridchange = async(event) => {
+    let useridchange = async (event) => {
         await props.setcred(previousState => {
-            return { ...previousState,userid:event.target.value}
+            return { ...previousState, userid: event.target.value }
         });
     };
 
@@ -55,101 +53,95 @@ function CredPage(props) {
     }
 
     let register = () => {
-        if(props.cred.userid===null || props.cred.userid==="" || props.cred.password===null || props.cred.password==="")
-        {
+        if (props.cred.userid === null || props.cred.userid === "" || props.cred.password === null || props.cred.password === "") {
             erroralert("Please Enter Full Details");
             return;
         }
         setalertshow(false);
         var url;
-        if(props.cred.type==="Admin")
-        {
-            url=BASE_URL+"/adminlogin/register";
+        if (props.cred.type === "Admin") {
+            url = BASE_URL + "/adminlogin/register";
         }
-        else
-        {
-            url=BASE_URL+"/userlogin/register";
+        else {
+            url = BASE_URL + "/userlogin/register";
         }
-        fetch(url,{
+        fetch(url, {
             method: 'post',
-            headers: {'Content-Type':'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                "credentials":{"userid":props.cred.userid,
-                            "password":props.cred.password}
-            })})
-         .then((res) => res.json())
-         .then((data) => {    
-            if(data.Status==="Success")
-            {
-                successalert(data.Message);
-            }
-            else
-            {
-                erroralert(data.Message);
-            }
-         })
-         .catch((err) => {
-            erroralert("Error in processing the data");
-         });
+                "credentials": {
+                    "userid": props.cred.userid,
+                    "password": props.cred.password
+                }
+            })
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log(res);
+
+                if (data.Status === "Success") {
+                    successalert(data.Message);
+                }
+                else {
+                    erroralert(data.Message);
+                }
+            })
+            .catch((err) => {
+                erroralert("Error in processing the data");
+            });
     };
 
 
     let login = async () => {
-        if(props.cred.userid===null || props.cred.userid==="" || props.cred.password===null || props.cred.password==="")
-        {
+        if (props.cred.userid === null || props.cred.userid === "" || props.cred.password === null || props.cred.password === "") {
             erroralert("Please Enter Full Details");
             return;
         }
         setalertshow(false);
         var url;
-        if(props.cred.type==="Admin")
-        {
-            url=BASE_URL+"/adminlogin/login";
+        if (props.cred.type === "Admin") {
+            url = BASE_URL + "/adminlogin/login";
         }
-        else
-        {
-            url=BASE_URL+"/userlogin/login";
+        else {
+            url = BASE_URL + "/userlogin/login";
         }
-        try
-        {
-            const response=await fetch(url,{
+        try {
+            const response = await fetch(url, {
                 method: 'post',
-                headers: {'Content-Type':'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    "credentials":{"userid":props.cred.userid,
-                                "password":props.cred.password}
-            })});
+                    "credentials": {
+                        "userid": props.cred.userid,
+                        "password": props.cred.password
+                    }
+                })
+            });
             const data = await response.json();
-            if(data.Status==="Success")
-            {
+            if (data.Status === "Success") {
                 successalert(data.Message);
                 document.getElementById("clickbutton").click();
-                if(props.cred.type==="Admin")
-                {
+                if (props.cred.type === "Admin") {
                     await props.setcred(previousState => {
-                        return {...previousState,password:"",tokenid:data.tokenid}
+                        return { ...previousState, password: "", tokenid: data.tokenid }
                     });
-                    await props.setcontents(["INFORMATION","SCHEDULE","HISTORY"]);
-                    await props.setview("Homepage"); 
+                    await props.setcontents(["INFORMATION", "SCHEDULE", "HISTORY"]);
+                    await props.setview("Homepage");
                     document.getElementById("adminscreen").click();
                 }
-                else
-                {
+                else {
                     await props.setcred(previousState => {
-                        return {...previousState,password:"",tokenid:data.tokenid}
+                        return { ...previousState, password: "", tokenid: data.tokenid }
                     });
-                    await props.setcontents(["PROFILE","BOOK SLOT","USER HISTORY"]);
+                    await props.setcontents(["PROFILE", "BOOK SLOT", "USER HISTORY"]);
                     await props.setview("Homepage");
                     document.getElementById("userscreen").click();
                 }
             }
-            else
-            {
+            else {
                 erroralert(data.Message);
             }
         }
-        catch(err)
-        {
+        catch (err) {
             erroralert("Error in processing the data");
         }
     };
@@ -170,18 +162,18 @@ function CredPage(props) {
                             <h4 className="modal-title text-center">{props.cred.type}</h4>
                         </div>
                         <div className="modal-body text-center">
-                            {alertshow===true && <Alert alertmsg={alertmsg} type={type}/>}
-                            <div>   
+                            {alertshow === true && <Alert alertmsg={alertmsg} type={type} />}
+                            <div>
                                 <button type="button" className="btn" onClick={event => reglogchange('Register')}>Register</button> &nbsp;
                                 <button type="button" className="btn" onClick={event => reglogchange('Login')}>Login</button>
                             </div>
-                            <br/><br/>
+                            <br /><br />
                             <div>
                                 <div className="form-group row">
                                     <div className="col-sm-2"></div>
                                     <label className="col-sm-2 col-form-label">User ID</label>
                                     <div className="col-sm-5">
-                                        <input type="text" className="form-control" value={props.cred.userid} onChange={useridchange}/>
+                                        <input type="text" className="form-control" value={props.cred.userid} onChange={useridchange} />
                                     </div>
                                     <div className="col-sm-2"></div>
                                 </div>
@@ -189,19 +181,19 @@ function CredPage(props) {
                                     <div className="col-sm-2"></div>
                                     <label className="col-sm-2 col-form-label">Password</label>
                                     <div className="col-sm-5">
-                                        <input type="password" className="form-control" value={props.cred.password} onChange={passwordchange}/>
+                                        <input type="password" className="form-control" value={props.cred.password} onChange={passwordchange} />
                                     </div>
                                     <div className="col-sm-2"></div>
                                 </div>
                             </div>
-                            <br/>
-                            {(props.cred.logintype==="Register") && <button type="button" className="btn" onClick={register}>Register</button>} 
-                            {(props.cred.logintype==="Login") && <button type="button" className="btn" onClick={login}>Login</button>} 
-                        </div> 
+                            <br />
+                            {(props.cred.logintype === "Register") && <button type="button" className="btn" onClick={register}>Register</button>}
+                            {(props.cred.logintype === "Login") && <button type="button" className="btn" onClick={login}>Login</button>}
+                        </div>
                     </div>
                 </div>
-            </div> 
+            </div>
         </>
-        );
+    );
 }
 export default CredPage;
